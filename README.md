@@ -11,7 +11,7 @@ table2md.py（已废弃）手动实现table转Markdown。
 
 1. 安装依赖
 
-    pip install -r requirements.txt
+        pip install -r requirements.txt
 
 2. 实例化并获取Markdown or Text
 
