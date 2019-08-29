@@ -29,17 +29,12 @@ class HtmlToMarkdown(object):
           'Referer': 'https://www.google.com/',
           'sec-fetch-mode': 'navigate',
           'upgrade-insecure-requests': '1',
-          # 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Safari/537.36',
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
       }
       proxies = {
           # 'https': 'socks5://user:pass@host:port',
           'http': 'socks5://127.0.0.1:1086',
           'https': 'socks5://127.0.0.1:1086',
-
-      }
-      headers = {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Safari/537.36',
       }
 
       try:
@@ -47,7 +42,7 @@ class HtmlToMarkdown(object):
             self.source,
             headers=headers,
             proxies=proxies,
-            timeout=(13.05, 27)
+            timeout=(3.05, 27)   # (connection, read)
         ).content.decode('utf-8')
       except Exception as e:
         print(e)
@@ -75,12 +70,12 @@ class HtmlToMarkdown(object):
 
 
 source = 'https://www.baidu.com/'
-# source = 'https://www.google.com/'
+source = 'https://www.google.com/'
 # source = 'https://www.twitter.com/'
 # source = 'https://litets.com/article/2019/4/3/103.html'
 # source = './baidu.html'
 # source = 'https://zh.wikipedia.org/wiki/%E9%9F%93%E5%9C%8B%E9%83%A8%E7%BD%B2%E8%96%A9%E5%BE%B7%E5%8F%8D%E5%B0%8E%E5%BD%88%E7%B3%BB%E7%B5%B1%E4%BA%8B%E4%BB%B6'
-source = 'https://www.runoob.com/html/html-tables.html'
+# source = 'https://www.runoob.com/html/html-tables.html'
 
 obj = HtmlToMarkdown(source)
 # print(obj.source)
