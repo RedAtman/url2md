@@ -1,9 +1,14 @@
+# Project
+logs/
+
+# IDE
+.vscode/
+
 # Docker
 *.tar
 images/
 
-
-# mac
+# Mac
 .DS_Store
 *.DS_Store
 
@@ -113,3 +118,13 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# db
+*.db
+
+# media files
+samples/
+
+# Tmp
+tmp/
+__*/
