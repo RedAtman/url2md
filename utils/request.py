@@ -1,4 +1,5 @@
 import json
+import logging
 import urllib
 import urllib.error
 import urllib.parse
@@ -6,11 +7,9 @@ import urllib.request
 from http.client import HTTPResponse
 from typing import Dict, Optional
 
-from config import CONFIG
-from logger import logger
-from utils.response import Result
+from .response import Result
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Request:
@@ -29,7 +28,7 @@ class Request:
         # "Host": "httpbin.org",
         # "Sec-Ch-Ua": "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"",
         # "Sec-Ch-Ua-Mobile": "?0",
-        "Sec-Ch-Ua-Platform": "\"macOS\"",
+        "Sec-Ch-Ua-Platform": '"macOS"',
         # "Sec-Fetch-Dest": "document",
         "Sec-Fetch-Mode": "navigate",
         # "Sec-Fetch-Site": "none",
@@ -37,29 +36,38 @@ class Request:
         "Upgrade-Insecure-Requests": "1",
         # "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "User-Agent": "Magic Browser",
-        'Referer': 'https://www.google.com/',
+        "Referer": "https://www.google.com/",
     }
-    auth_headers = classmethod(property(lambda cls: {
-        # 'Authorization': f'Bearer {cls.token}',
-        # 'Cookie': 'SESSION_COOKIE_NAME_PREFIX=jms_',
-    }))
-    headers = classmethod(property(lambda cls: dict(cls.default_headers, **cls.auth_headers)))
+    auth_headers = classmethod(
+        property(
+            lambda cls: {
+                # 'Authorization': f'Bearer {cls.token}',
+                # 'Cookie': 'SESSION_COOKIE_NAME_PREFIX=jms_',
+            }
+        )
+    )
+    headers = classmethod(
+        property(lambda cls: dict(cls.default_headers, **cls.auth_headers))
+    )
 
     @staticmethod
     def parse(response: HTTPResponse) -> Result:
         try:
-            encoding = response.info().get('Content-Encoding')
-            logger.debug(encoding)
-            if encoding == 'gzip':
+            encoding = response.info().get("Content-Encoding")
+            # logger.debug(encoding)
+            if encoding == "gzip":
                 import zlib
-                content=zlib.decompress(response.read(), 16+zlib.MAX_WBITS).decode('utf-8')
+
+                content = zlib.decompress(response.read(), 16 + zlib.MAX_WBITS).decode(
+                    "utf-8"
+                )
             else:
                 content = response.read()
                 # content = response.read().decode('utf-8')
                 # content = response.read().decode('gbk')
                 # content = json.loads(response.read().decode('utf-8'))
-            logger.debug(type(content))
-            logger.debug(content)
+            # logger.debug(type(content))
+            # logger.debug(content)
         except Exception as err:
             logger.exception(err)
             return Result(code=response.status, msg=err)
@@ -69,22 +77,22 @@ class Request:
     def _request(
         cls,
         url: str,
-        method: str = 'GET',
+        method: str = "GET",
         headers: Dict[str, str] = {},
         data: Optional[Dict[str, str]] = {},
     ):
-        if method.upper() == 'GET':
+        if method.upper() == "GET":
             # url = '?' + urllib.parse.urlencode({url}, data=bytes(json.dumps(data), encoding="utf-8"))
             # data = urllib.parse.urlencode(data)
-            url += '?' + urllib.parse.urlencode(data)
+            url += "?" + urllib.parse.urlencode(data)
             data = None
-        elif method.upper() == 'POST':
+        elif method.upper() == "POST":
             # data = urllib.parse.urlencode(data).encode('utf-8')
             # data = json.dumps(data).encode('utf-8')
             json_str = json.dumps(data)
-            data = json_str.encode('utf-8', 'strict')
+            data = json_str.encode("utf-8", "strict")
         else:
-            raise Exception('method must be GET or POST')
+            raise Exception("method must be GET or POST")
 
         headers = headers or cls.headers
         try:
@@ -103,25 +111,28 @@ class Request:
             raise err
         except urllib.error.URLError as err:
             if isinstance(err.reason, ConnectionRefusedError):
-                raise Exception(f'Please check: server is running')
+                raise Exception(f"Please check: server is running")
             return Result(code=400, msg=err)
         if response.status >= 200 and response.status < 400:
             return cls.parse(response)
         return Result(code=response.status, data=response.__dict__)
 
     @classmethod
-    def request(cls,
+    def request(
+        cls,
         url: str,
-        method: str = 'GET',
+        method: str = "GET",
         headers: Dict[str, str] = {},
-        data: Optional[Dict[str, str]] = {},) -> Result:
+        data: Optional[Dict[str, str]] = {},
+    ) -> Result:
         return cls._request(url, method=method, headers=headers, data=data)
 
 
-if __name__ == '__main__':
-    url = 'https://httpbin.org/get'
-    url = 'https://www.cnblogs.com/NanZhiHan/p/16809977.html'
-    result = Request.request(url=url, method='GET', data={})
+if __name__ == "__main__":
+    url = "https://httpbin.org/get"
+    url = "https://www.cnblogs.com/NanZhiHan/p/16809977.html"
+    result = Request.request(url=url, method="GET", data={})
     assert result == 200
-    assert result == 'Success'
-    # logger.json(result)
+    assert result == "Success"
+    logger.info(result)
+    print(result.code)
